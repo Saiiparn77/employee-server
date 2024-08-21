@@ -20,11 +20,12 @@ const createEmployee = async (req, res) => {
   if (!fname || !lname || !nick_name || !password) {
     return res.status(400).json({ msg: "กรุณากรอกข้อมูลให้ครบถ้วน" });
   }
-  const isEmployeeExists = await Employee.findOne({where:{ fname , lname , nick_name}});
+  const isEmployeeExists = await Employee.findOne({ where : { fname , lname}});
   if (isEmployeeExists) {
     return res.status(409).json({ msg: "พนักงานคนนี้มีอยู่ในฐานข้อมูลแล้ว" });
   }
   try {
+    //เพิ่มข้อมูลลงฐานข้อมูล
     await Employee.create({
       id: getRandomNineDigitNumber(),
       fname,
@@ -42,7 +43,9 @@ const createEmployee = async (req, res) => {
 
 const getAllEmployees = async (req, res) => {
   try {
+    //ดึงข้อมูลพนักงานทั้งหมด
     const employees = await Employee.findAll();
+    //ส่งข้อมูลกลับไปยังผู้ใช้
     return res.status(200).json({ employees });
   } catch (err) {
     console.log(err);
@@ -51,7 +54,7 @@ const getAllEmployees = async (req, res) => {
       .json({ msg: "Something went wrong , Please try again" });
   }
 };
-
+//เรียกดูข้อมูลพนักงานเพียงคนเดียว สำหรับผู้จัดการ
 const getEmployeeByIdManager = async (req, res) => {
   const id = req.params.id;
   try {
@@ -65,7 +68,7 @@ const getEmployeeByIdManager = async (req, res) => {
       .json({ msg: "Something went wrong , Please try again" });
   }
 };
-
+//เรียกดูพนักงานด้วย id
 const getEmployeeById = async (req, res) => {
   const token = req.params.token;
   try {
@@ -105,6 +108,13 @@ const updateEmployee = async (req, res) => {
     num_of_ot_hours,
     // จำนวนเงิน OT ต่อชั่วโมง
     ot_per_hour,
+    //ค่ากะ
+    shift_fee,
+    //เบอร์ติดต่อ
+    phone_number,
+    //อีเมลล์
+    email,
+    line,
   } = req.body;
   if (!fname) {
     return res.status(400).json({ msg: "กรุณากรอก ชื่อจริง พนักงาน" });
@@ -114,7 +124,7 @@ const updateEmployee = async (req, res) => {
     return res.status(400).json({ msg: "กรุณากรอก ชื่อเล่น พนักงาน" });
   }
   console.log("employeeId", employeeId);
-
+//อัพเดตข้อมูลพนักงานด้วยข้อมูลใหม่ที่ส่งมา
   await Employee.update(
     {
       fname,
@@ -124,13 +134,19 @@ const updateEmployee = async (req, res) => {
       num_of_work_date,
       num_of_ot_hours,
       ot_per_hour,
+      shift_fee,
       ot_summary: ot_per_hour * num_of_ot_hours,
+      phone_number,
+      line,
+      email,
       total_salary:
-        wage_per_date * num_of_work_date + ot_per_hour * num_of_ot_hours,
+        (wage_per_date * num_of_work_date) +
+        (ot_per_hour * num_of_ot_hours) +
+        Number(shift_fee)
     },
     { where: { id: employeeId } }
   );
-
+//ส่งข้อความสำเร็จไปยังผู้ใช้
   res.status(200).json({ msg: "updated your employee successfully" });
 };
 
@@ -163,9 +179,11 @@ const loginEmployee = async (req, res) => {
 
 const deleteEmployeeId = async (req, res) => {
   const id = req.params.id;
+  //ลบข้อมูลพนักงานด้วย id ในฐานข้อมูล
   await Employee.destroy({
     where: { id },
   });
+  //ส่งข้อความกลับไปว่าลบข้อมูลสำเร็จแล้ว
   return res.status(200).json({ msg: "ลบข้อมูลพนักงานเรียบร้อย" });
 };
 

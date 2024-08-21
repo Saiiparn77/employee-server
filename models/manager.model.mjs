@@ -23,7 +23,7 @@ Manager.sync({ force: true })
   .then(async () => {
     console.log("Manager Table created !");
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash("Sparn777444", salt);
+    const hashedPassword = await bcrypt.hash("sparn7744", salt);
     await Manager.create({ username: "parn7744", password: hashedPassword });
   })
   .catch((err) => {

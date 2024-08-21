@@ -11,7 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/",(req,res)=>{
+  res.json({ msg : "Welcome to our API "})
+})
+//เส้นทางสำหรับผู้จัดการ
 app.use("/manager", managerRouter);
+//เส้นทางสำหรับจัดการพนักงาน
 app.use("/employee", employeeRouter);
 
 app.listen(PORT, () => {
